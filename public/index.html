@@ -28,10 +28,12 @@
     <table class="table table-striped">
       <tbody id="tableBody">
         <tr id="line_{{line.lineID}}" class="listLine" ng-repeat="line in lines" ng-click="lineClick($event,'line.lineID');">
-          <td>{{line.item}}</td>
+          <td>{{line.label}}</td>
           <td>{{line.quantity}}</td>
-          <td>${{line.price}}</td>
+          <td>${{line.price * line.quantity}}</td>
         </tr>
+      </tbody>
+      <tbody id="tableFooter">
         <tr>
           <td>Total:</td>
           <td></td>

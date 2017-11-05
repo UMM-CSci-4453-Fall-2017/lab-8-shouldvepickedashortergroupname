@@ -21,9 +21,21 @@ app.get("/buttons",function(req,res){
 });
 
 app.get("/click",function(req,res){
-  var id = req.param('id');
-  var sql = 'SELECT * FROM mitc0417.till_buttons';
+  var htmlID = req.param('id');
+  console.log("htmlID " + htmlID.substring(0,1))
+  var id;
+  var sql;
+  if(htmlID.substring(0,1) == ("l")) // this is if it's a line being clicked
+  {
+    id = htmlID.substring(5,htmlID.length);
+    sql = 'DELETE FROM mitc0417.transaction_table WHERE lineID = ' + id + ';';
+  }
+  else { // this is if it's a button being clicked
+    id = htmlID.substring(7,htmlID.length);
+    sql = 'INSERT INTO mitc0417.transaction_table (buttonID, quantity) VALUES (' + id + ', 1) ON DUPLICATE KEY UPDATE quantity = quantity + 1';
+  }
   console.log("Attempting sql ->"+sql+"<-");
+  console.log("id " + id);
 
   connection.query(sql,(function(res){return function(err,rows,fields){
      if(err){console.log("We have an insertion error:");
@@ -34,13 +46,12 @@ app.get("/click",function(req,res){
 // Your other API handlers go here!
 
 app.get("/list",function(req,res){
-  var sql = 'SELECT * FROM mitc0417.till_buttons';
+  var sql = 'SELECT * FROM mitc0417.transaction_table LEFT JOIN mitc0417.till_buttons ON mitc0417.transaction_table.buttonID = mitc0417.till_buttons.buttonID;';
   connection.query(sql,(function(res){return function(err,rows,fields){
      if(err){console.log("We have an error:");
              console.log(err);}
 
-    var list = [{lineID: 1, item: "lollipops", quantity: 4, price: 1.00},{lineID: 2, item: "hamburgers", quantity: 2, price: 5.25},{lineID: 3, item: "milkduds", quantity: 20, price: 0.75}];
-     res.send(list);
+     res.send(rows);
   }})(res));
 });
 

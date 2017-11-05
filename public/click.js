@@ -43,17 +43,88 @@ function RegisterCtrl($scope,registerApi){
   function buttonClick($event){
      $scope.errorMessage='';
      registerApi.clickButton($event.target.id)
-        .success(function(){})
+        .success(function(){
+          var buttonHTMLID = $event.target.id;
+          var buttonID = buttonHTMLID.substring(7,buttonHTMLID.length);
+          var itemIndex = inScope(buttonID);
+          if(itemIndex != -1)
+          {
+            $scope.lines[itemIndex].quantity += 1;
+            // TODO: update quantity and price of existing line
+          }
+          else {
+            var button = $scope.buttons[findButtonID(buttonID)];
+            var lineToBeAdded = {lineID: $scope.lines[$scope.lines.length -1].lineID + 1, label: button.label, quantity: 1, price: button.price};
+            $scope.lines.push(lineToBeAdded);
+            htmlAddLine(lineToBeAdded);
+            // TODO: ask professor
+            totalPrice();
+          }
+        })
         .error(function(){$scope.errorMessage="Unable to click";});
   }
   refreshButtons();  //make sure the buttons are loaded
+
+  function htmlAddLine(lineToBeAdded)
+  {
+    var tableBody = document.getElementById("tableBody");
+    var labelField = document.createElement("td");
+    labelField.textContent = lineToBeAdded.label;
+    var quantityField = document.createElement("td");
+    quantityField.textContent = lineToBeAdded.quantity;
+    var priceField = document.createElement("td");
+    priceField.textContent = "$" + lineToBeAdded.price;
+    var newLine = document.createElement("tr");
+    newLine.id = "line_" + lineToBeAdded.lineID;
+
+    newLine.appendChild(labelField);
+    newLine.appendChild(quantityField);
+    newLine.appendChild(priceField);
+    newLine.classList.add("listLine");
+    tableBody.appendChild(newLine);
+  }
 
   function totalPrice(){
     $scope.totalPrice = 0;
     for(var i = 0; i < $scope.lines.length; i++)
     {
-      $scope.totalPrice += $scope.lines[i].price;
+      $scope.totalPrice += $scope.lines[i].price * $scope.lines[i].quantity;
     }
+  }
+
+  function findLineID(lineID) {
+    for(var i = 0; i < $scope.lines.length; i++)
+    {
+      if($scope.lines[i].lineID == lineID)
+      {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
+  function findButtonID(buttonID) {
+    for(var i = 0; i < $scope.buttons.length; i++)
+    {
+      if($scope.buttons[i].buttonID == buttonID)
+      {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
+  function inScope(buttonID) {
+    for(var i = 0; i < $scope.lines.length; i++)
+    {
+      if($scope.lines[i].buttonID == buttonID)
+      {
+        return i;
+      }
+    }
+    return -1;
   }
 
   function refreshLines(){
@@ -77,11 +148,12 @@ function RegisterCtrl($scope,registerApi){
         .success(function(){
           var lineHTMLID = $event.target.parentElement.id;
           var lineID = lineHTMLID.substring(5,lineHTMLID.length);
-          var linePrice = parseFloat($scope.lines[lineID - 1].price);
+          var linePrice = parseFloat($scope.lines[findLineID(lineID)].price);
           var tableBody = document.getElementById("tableBody");
           var tableLine = document.getElementById(lineHTMLID);
           tableBody.removeChild(tableLine);
           $scope.totalPrice = $scope.totalPrice - linePrice;
+          $scope.lines.splice(findLineID(lineID), 1);
         })
         .error(function(){$scope.errorMessage="Unable to click";});
   }
