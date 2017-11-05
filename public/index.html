@@ -4,15 +4,16 @@
     <meta charset="utf-8">
     <title>Cash Register</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="main.css">
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular.min.js"></script>
     <script src="click.js"></script>
 </head>
-<body ng-app="buttons">
+<body ng-app="register">
 <div class="container-fluid">
     <h1>Cash Register (with buttons)</h1>
-    <div id="buttons" ng-controller="buttonCtrl" >
+    <div id="buttons" ng-controller="registerCtrl" >
        <div ng-repeat="button in buttons">
-         <div style="position:absolute;left:{{button.left}}px;top:{{button.top}}px"><button id="{{button.buttonID}}" ng-click="buttonClick($event,'button.buttonID');" >{{button.label}}</button></div>
+         <div style="position:absolute;left:{{button.left}}px;top:{{button.top}}px"><button id="button_{{button.buttonID}}" ng-click="buttonClick($event,'button.buttonID');" >{{button.label}}</button></div>
        </div>
        <div style="position:fixed;height:50px;bottom:0px;left:0px;right:0px;margin-bottom:0px"} ng-show="errorMessage != ''">
           <div class="col-sm-12">
@@ -20,6 +21,25 @@
          </div>
        </div>
      </div>
+</div>
+<div class="container pull-right">
+      <h1>Items</h1>
+  <div id="list" ng-controller="registerCtrl" >
+    <table class="table table-striped">
+      <tbody id="tableBody">
+        <tr id="line_{{line.lineID}}" class="listLine" ng-repeat="line in lines" ng-click="lineClick($event,'line.lineID');">
+          <td>{{line.item}}</td>
+          <td>{{line.quantity}}</td>
+          <td>${{line.price}}</td>
+        </tr>
+        <tr>
+          <td>Total:</td>
+          <td></td>
+          <td>$<span ng-bind="totalPrice"></span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
 </body>
 </html>
