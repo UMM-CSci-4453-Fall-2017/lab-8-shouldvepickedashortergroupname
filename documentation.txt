@@ -1,0 +1,7 @@
+Group: shouldvePickedAShorterGroupName
+
+Members: Sophia Mitchellette and Sydney Richards
+
+Database: mitc0417
+
+API: registerApi
