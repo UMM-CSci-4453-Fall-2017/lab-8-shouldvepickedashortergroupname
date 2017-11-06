@@ -40,49 +40,36 @@ function RegisterCtrl($scope,registerApi){
           loading=false;
       });
  }
+
+ function refreshLines(){
+   loading=true;
+   $scope.errorMessage='';
+   registerApi.getLines()
+     .success(function(data){
+        $scope.lines=data;
+
+        // TODO: write function converting to price format
+        totalPrice();
+        loading=false;
+     })
+     .error(function () {
+         $scope.errorMessage="Unable to load Lines:  Database request failed";
+         loading=false;
+     });
+}
+
   function buttonClick($event){
      $scope.errorMessage='';
      registerApi.clickButton($event.target.id)
         .success(function(){
-          var buttonHTMLID = $event.target.id;
-          var buttonID = buttonHTMLID.substring(7,buttonHTMLID.length);
-          var itemIndex = inScope(buttonID);
-          if(itemIndex != -1)
-          {
-            $scope.lines[itemIndex].quantity += 1;
-            // TODO: update quantity and price of existing line
-          }
-          else {
-            var button = $scope.buttons[findButtonID(buttonID)];
-            var lineToBeAdded = {lineID: $scope.lines[$scope.lines.length -1].lineID + 1, label: button.label, quantity: 1, price: button.price};
-            $scope.lines.push(lineToBeAdded);
-            htmlAddLine(lineToBeAdded);
-            // TODO: ask professor
-            totalPrice();
-          }
+          totalPrice();
+          refreshLines();
         })
         .error(function(){$scope.errorMessage="Unable to click";});
   }
   refreshButtons();  //make sure the buttons are loaded
+  //refreshLines();
 
-  function htmlAddLine(lineToBeAdded)
-  {
-    var tableBody = document.getElementById("tableBody");
-    var labelField = document.createElement("td");
-    labelField.textContent = lineToBeAdded.label;
-    var quantityField = document.createElement("td");
-    quantityField.textContent = lineToBeAdded.quantity;
-    var priceField = document.createElement("td");
-    priceField.textContent = "$" + lineToBeAdded.price;
-    var newLine = document.createElement("tr");
-    newLine.id = "line_" + lineToBeAdded.lineID;
-
-    newLine.appendChild(labelField);
-    newLine.appendChild(quantityField);
-    newLine.appendChild(priceField);
-    newLine.classList.add("listLine");
-    tableBody.appendChild(newLine);
-  }
 
   function totalPrice(){
     $scope.totalPrice = 0;
@@ -92,68 +79,13 @@ function RegisterCtrl($scope,registerApi){
     }
   }
 
-  function findLineID(lineID) {
-    for(var i = 0; i < $scope.lines.length; i++)
-    {
-      if($scope.lines[i].lineID == lineID)
-      {
-        return i;
-      }
-    }
 
-    return -1;
-  }
-
-  function findButtonID(buttonID) {
-    for(var i = 0; i < $scope.buttons.length; i++)
-    {
-      if($scope.buttons[i].buttonID == buttonID)
-      {
-        return i;
-      }
-    }
-
-    return -1;
-  }
-
-  function inScope(buttonID) {
-    for(var i = 0; i < $scope.lines.length; i++)
-    {
-      if($scope.lines[i].buttonID == buttonID)
-      {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  function refreshLines(){
-    loading=true;
-    $scope.errorMessage='';
-    registerApi.getLines()
-      .success(function(data){
-         $scope.lines=data;
-         // TODO: write function converting to price format
-         totalPrice();
-         loading=false;
-      })
-      .error(function () {
-          $scope.errorMessage="Unable to load Lines:  Database request failed";
-          loading=false;
-      });
- }
   function lineClick($event){
      $scope.errorMessage='';
      registerApi.clickLine($event.target.parentElement.id)
         .success(function(){
-          var lineHTMLID = $event.target.parentElement.id;
-          var lineID = lineHTMLID.substring(5,lineHTMLID.length);
-          var linePrice = parseFloat($scope.lines[findLineID(lineID)].price);
-          var tableBody = document.getElementById("tableBody");
-          var tableLine = document.getElementById(lineHTMLID);
-          tableBody.removeChild(tableLine);
-          $scope.totalPrice = $scope.totalPrice - linePrice;
-          $scope.lines.splice(findLineID(lineID), 1);
+          totalPrice();
+          refreshLines();
         })
         .error(function(){$scope.errorMessage="Unable to click";});
   }
@@ -169,7 +101,6 @@ function registerApi($http,apiUrl){
     },
     clickButton: function(id){
       var url = apiUrl+'/click?id='+id;
-//      console.log("Attempting with "+url);
       return $http.get(url); // Easy enough to do this way
     },
     getLines: function(){
@@ -178,7 +109,6 @@ function registerApi($http,apiUrl){
     },
     clickLine: function(id){
       var url = apiUrl+'/click?id='+id;
-//      console.log("Attempting with "+url);
       return $http.get(url); // Easy enough to do this way
     }
  };
