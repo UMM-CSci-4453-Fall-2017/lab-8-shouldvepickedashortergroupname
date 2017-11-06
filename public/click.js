@@ -47,8 +47,8 @@ function RegisterCtrl($scope,registerApi){
    registerApi.getLines()
      .success(function(data){
         $scope.lines=data;
-
-        // TODO: write function converting to price format
+        decimalinator();
+        console.dir($scope.lines);
         totalPrice();
         loading=false;
      })
@@ -77,8 +77,41 @@ function RegisterCtrl($scope,registerApi){
     {
       $scope.totalPrice += $scope.lines[i].price * $scope.lines[i].quantity;
     }
+
+    $scope.totalPrice =  $scope.totalPrice + "";
+
+    if($scope.totalPrice.substring($scope.totalPrice.length - 3, $scope.totalPrice.length - 2) != ".")
+    {
+      if($scope.totalPrice.substring($scope.totalPrice.length - 2, $scope.totalPrice.length - 1) == ".")
+      {
+        $scope.totalPrice += "0";
+      }
+      else {
+        $scope.totalPrice += ".00";
+      }
+    }
   }
 
+  function decimalinator()
+  {
+    for(var i = 0; i < $scope.lines.length; i++)
+    {
+      price = ($scope.lines[i].price * $scope.lines[i].quantity) + "";
+      console.log("test");
+      if(price.substring(price.length - 3, price.length - 2) != ".")
+      {
+        if(price.substring(price.length - 2, price.length - 1) == ".")
+        {
+          price += "0";
+        }
+        else {
+          price += ".00";
+        }
+      }
+      $scope.lines[i].displayPrice = price;
+    }
+
+  }
 
   function lineClick($event){
      $scope.errorMessage='';

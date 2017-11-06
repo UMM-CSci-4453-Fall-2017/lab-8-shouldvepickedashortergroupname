@@ -30,7 +30,7 @@
         <tr id="line_{{line.lineID}}" class="listLine" ng-repeat="line in lines" ng-click="lineClick($event,'line.lineID');">
           <td>{{line.label}}</td>
           <td>{{line.quantity}}</td>
-          <td>${{line.price * line.quantity}}</td>
+          <td>${{line.displayPrice}}</td>
         </tr>
       </tbody>
       <tbody id="tableFooter">
