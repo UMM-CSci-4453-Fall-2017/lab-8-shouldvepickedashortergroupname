@@ -27,6 +27,8 @@ function RegisterCtrl($scope,registerApi){
    }
 
    // Button functions
+
+   // when called, gets buttons from api and updates $scope.buttons
   function refreshButtons(){
     loading=true;
     $scope.errorMessage='';
@@ -41,15 +43,15 @@ function RegisterCtrl($scope,registerApi){
       });
  }
 
+// when called, gets lines from api and updates $scope.lines
  function refreshLines(){
    loading=true;
    $scope.errorMessage='';
    registerApi.getLines()
      .success(function(data){
         $scope.lines=data;
-        decimalinator();
-        console.dir($scope.lines);
-        totalPrice();
+        decimalinator(); // formats price for UI
+        totalPrice(); // calculates and formats price for UI
         loading=false;
      })
      .error(function () {
@@ -58,67 +60,61 @@ function RegisterCtrl($scope,registerApi){
      });
 }
 
+// calls the database when buttons are clicked
   function buttonClick($event){
      $scope.errorMessage='';
      registerApi.clickButton($event.target.id)
         .success(function(){
-          totalPrice();
-          refreshLines();
+          totalPrice(); // calculates and formats price for UI
+          refreshLines(); // gets lines from api and updates $scope.lines
         })
         .error(function(){$scope.errorMessage="Unable to click";});
   }
   refreshButtons();  //make sure the buttons are loaded
-  //refreshLines();
 
-
+// calculates and formats price for UI
   function totalPrice(){
     $scope.totalPrice = 0;
-    for(var i = 0; i < $scope.lines.length; i++)
-    {
+    for(var i = 0; i < $scope.lines.length; i++) {
       $scope.totalPrice += $scope.lines[i].price * $scope.lines[i].quantity;
     }
 
     $scope.totalPrice =  $scope.totalPrice + "";
 
-    if($scope.totalPrice.substring($scope.totalPrice.length - 3, $scope.totalPrice.length - 2) != ".")
-    {
-      if($scope.totalPrice.substring($scope.totalPrice.length - 2, $scope.totalPrice.length - 1) == ".")
-      {
+    if($scope.totalPrice.substring($scope.totalPrice.length - 3, $scope.totalPrice.length - 2) != ".") {
+
+      if($scope.totalPrice.substring($scope.totalPrice.length - 2, $scope.totalPrice.length - 1) == ".") { // if there is one decimal place (ex: 1.5)
         $scope.totalPrice += "0";
-      }
-      else {
+      } else { // if it is a round number (ex: 36)
         $scope.totalPrice += ".00";
       }
     }
   }
 
-  function decimalinator()
-  {
-    for(var i = 0; i < $scope.lines.length; i++)
-    {
+// formats price for UI
+  function decimalinator() {
+    for(var i = 0; i < $scope.lines.length; i++) {
       price = ($scope.lines[i].price * $scope.lines[i].quantity) + "";
       console.log("test");
-      if(price.substring(price.length - 3, price.length - 2) != ".")
-      {
-        if(price.substring(price.length - 2, price.length - 1) == ".")
-        {
+      if(price.substring(price.length - 3, price.length - 2) != ".") {
+
+        if(price.substring(price.length - 2, price.length - 1) == ".") { // if there is one decimal place (ex: 1.5)
           price += "0";
-        }
-        else {
+        } else { // if it is a round number (ex: 36)
           price += ".00";
         }
       }
       $scope.lines[i].displayPrice = price;
     }
-
   }
 
+// calls the database when lines are clicked
   function lineClick($event){
      $scope.errorMessage='';
      registerApi.clickLine($event.target.parentElement.id)
         .success(function(){
-          totalPrice();
-          refreshLines();
+          totalPrice(); // calculates and formats price for UI
+          refreshLines(); // gets lines from api and updates $scope.lines
         })
         .error(function(){$scope.errorMessage="Unable to click";});
   }
@@ -126,23 +122,24 @@ function RegisterCtrl($scope,registerApi){
 
 }
 
+// api that holds functions for retrieving button and list information
 function registerApi($http,apiUrl){
   return{
-    getButtons: function(){
+    getButtons: function(){ // retreives button information from database
       var url = apiUrl + '/buttons';
       return $http.get(url);
     },
-    clickButton: function(id){
+    clickButton: function(id){ // sends button click information to database
       var url = apiUrl+'/click?id='+id;
-      return $http.get(url); // Easy enough to do this way
+      return $http.get(url);
     },
-    getLines: function(){
+    getLines: function(){ // retreives list information from database
       var url = apiUrl + '/list';
       return $http.get(url);
     },
-    clickLine: function(id){
+    clickLine: function(id){ // sends line click information to databse
       var url = apiUrl+'/click?id='+id;
-      return $http.get(url); // Easy enough to do this way
+      return $http.get(url);
     }
  };
 }
