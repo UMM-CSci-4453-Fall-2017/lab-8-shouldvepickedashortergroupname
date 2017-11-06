@@ -95,7 +95,6 @@ function RegisterCtrl($scope,registerApi){
   function decimalinator() {
     for(var i = 0; i < $scope.lines.length; i++) {
       price = ($scope.lines[i].price * $scope.lines[i].quantity) + "";
-      console.log("test");
       if(price.substring(price.length - 3, price.length - 2) != ".") {
 
         if(price.substring(price.length - 2, price.length - 1) == ".") { // if there is one decimal place (ex: 1.5)
