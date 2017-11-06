@@ -11,6 +11,7 @@
 <body ng-app="register" ng-controller="registerCtrl">
 <div class="container-fluid" >
     <h1>Cash Register (with buttons)</h1>
+    <!-- displays buttons -->
     <div id="buttons">
        <div ng-repeat="button in buttons">
          <div style="position:absolute;left:{{button.left}}px;top:{{button.top}}px"><button id="button_{{button.buttonID}}" ng-click="buttonClick($event,'button.buttonID');" >{{button.label}}</button></div>
@@ -22,21 +23,26 @@
        </div>
      </div>
 </div>
+<!-- displays transaction information -->
 <div class="container pull-right">
       <h1>Items</h1>
   <div id="list">
+    <!-- displays transaction table -->
     <table class="table table-striped">
       <tbody id="tableBody">
+        <!-- loops through all transaction lines and displays them -->
         <tr id="line_{{line.lineID}}" class="listLine" ng-repeat="line in lines" ng-click="lineClick($event,'line.lineID');">
-          <td>{{line.label}}</td>
-          <td>{{line.quantity}}</td>
-          <td>${{line.displayPrice}}</td>
+          <td>{{line.label}}</td> <!-- displays item label -->
+          <td>{{line.quantity}}</td> <!-- displays item quantity -->
+          <td>${{line.displayPrice}}</td> <!-- displays item price -->
         </tr>
       </tbody>
       <tbody id="tableFooter">
         <tr>
+          <!-- displays total price row of transaction table -->
           <td>Total:</td>
           <td></td>
+          <!-- displays total price of transaction -->
           <td>$<span ng-bind="totalPrice"></span></td>
         </tr>
       </tbody>
